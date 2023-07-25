@@ -1,27 +1,41 @@
-# React + TypeScript + Vite
+# POC: Appointments with Vonage AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A proof of concept using Vonage AI for appointments.
 
-Currently, two official plugins are available:
+## Firebase (BaaS)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+It relies on Firebase as backend even for local development,
+so we have a vendor lock-in, but that's fine for a quick POC.
 
-## Expanding the ESLint configuration
+So open https://console.firebase.google.com/ and create a Project.
+No need to enable Firebase Analytics.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+Look for a button that sounds like "Add Firebase to your web app", it's
+a wizard to generate your credentials.
 
-- Configure the top-level `parserOptions` property like this:
+By the way, if you're concerned with remote deploys,
+mark "Also set up Firebase Hosting for this app."
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+Stop when you see a config JSON, you'll need it for the next step.
+
+## Local setup (Node)
+
+Using **Node 18**, just install dependencies:
+
+```sh
+npm i
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Create a safe environment variables for you called `.env` using the `sample.env`:
+
+```sh
+cp sample.env .env
+```
+
+Fill it with the data you gathered earlier in the Firebase step.
+
+And run the app:
+
+```sh
+npm run dev
+```
