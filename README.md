@@ -6,12 +6,18 @@ A proof of concept using Vonage AI for appointments.
 
 It relies on Firebase as backend even for local development,
 so we have a vendor lock-in, but that's fine for a quick POC.
+Get ready to
+[press some buttons here](http://www.quickmeme.com/img/99/9903c7c14add3fd0758b7b5b80c24d48101f296f13ce34736799a82c71f61bc2.jpg).
+But don't worry, all sensitive details are automated, you're just initializing the resources.
 
 So open https://console.firebase.google.com/ and create a Project.
-No need to enable Firebase Analytics.
+No need to enable Analytics.
 
-Look for a button that sounds like "Add Firebase to your web app", it's
-a wizard to generate your credentials.
+First, enable the database, look for a "Cloud Firestore" section and create it.
+Select the "test mode" while creating it for now.
+
+Now, for the credentials. Look for a button that sounds like "Add Firebase to your web app",
+it's a wizard to generate your credentials.
 
 By the way, if you're concerned with remote deploys,
 mark "Also set up Firebase Hosting for this app."
@@ -39,3 +45,27 @@ And run the app:
 ```sh
 npm run dev
 ```
+
+## Deploying it (PaaS)
+
+Just for clarifications, we'll need from this Cloud:
+
+- Firestore
+- Functions
+- Hosting
+
+TLDR, the commands are:
+
+```sh
+npm install -g firebase-tools
+firebase login
+firebase deploy
+```
+
+If you're maintaining a custom instance (made by someone else than the original repo author),
+you'll probably need to somehow override the project name used as target.
+
+## Licensing
+
+This is proprietary software made by WebRTC.ventures & AgilityFeat and written by
+their favorite developer Marcell da Silva (Mazuh).
