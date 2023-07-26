@@ -19,16 +19,22 @@ export default function App() {
   );
 
   const today = new Date();
-  const todayAppointments = appointments.filter(
-    (a) =>
-      a.datetime.getFullYear() === today.getFullYear() &&
-      a.datetime.getMonth() === today.getMonth() &&
-      a.datetime.getDay() === today.getDay()
-  );
+  const todayAppointments = appointments
+    .filter(
+      (a) =>
+        a.datetime.getFullYear() === today.getFullYear() &&
+        a.datetime.getMonth() === today.getMonth() &&
+        a.datetime.getDay() === today.getDay()
+    )
+    .sort((left, right) =>
+      left.datetime.valueOf() > right.datetime.valueOf() ? 1 : -1
+    );
 
   return (
-    <main>
-      <h1>Appointments Schedule</h1>
+    <main className="main">
+      <header className="main-header">
+        <h1 className="main-header__title">School Appointments</h1>
+      </header>
       {!todayAppointments.length && (
         <p>
           Waiting for appointments data. If this is taking too long, open the
@@ -36,11 +42,36 @@ export default function App() {
           <code>seedTodayAppointments()</code>
         </p>
       )}
-      <ul>
+      <ul className="appointments-list">
         {todayAppointments.map((appointment) => (
-          <li key={appointment.uid}>
-            <strong>{appointment.datetime.toLocaleString()}</strong>:{" "}
-            {appointment.guardianName} ({appointment.studentName})
+          <li key={appointment.uid} className="appointments-list-item">
+            <details className="appointment">
+              <summary className="appointment__summary">
+                <span className="appointment__summary-week-day">
+                  {appointment.datetime.toLocaleString("en-US", {
+                    weekday: "short",
+                  })}
+                </span>
+                <span className="appointment__summary-date">
+                  {appointment.datetime.toLocaleString("en-US", {
+                    month: "short",
+                    day: "2-digit",
+                  })}
+                </span>
+                <span className="appointment__summary-names">
+                  {appointment.guardianName} ({appointment.studentName})
+                </span>
+              </summary>
+              <ul className="appointment__content">
+                <li>Guardian: {appointment.guardianName}</li>
+                <li>Email: {appointment.guardianEmail}</li>
+                <li>Phone: {appointment.guardianPhone}</li>
+                <li>Student: {appointment.studentName}</li>
+                <li>
+                  Grade level: {appointment.studentGradeLevel.description}
+                </li>
+              </ul>
+            </details>
           </li>
         ))}
       </ul>

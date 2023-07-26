@@ -1,0 +1,78 @@
+/* pallete: https://flatuicolors.com/palette/defo */
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.main-header {
+  background: rgba(0, 0, 0, 0.9);
+  color: #ecf0f1;
+  padding: 20px;
+}
+
+.main-header__title {
+  font-size: 1.3em;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-color: #c0392b;
+  text-underline-offset: 10px;
+}
+
+.appointments-list {
+  list-style-type: none;
+  margin: auto;
+  padding: 10px;
+  max-width: 800px;
+}
+
+.appointments-list-item {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.appointment__summary {
+  padding: 10px;
+  cursor: pointer;
+  border: 1px solid #2c3e50;
+  border-radius: 8px;
+}
+
+.appointment__summary-week-day {
+  display: inline-block;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.appointment__summary-date {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.appointment__summary-names {
+  display: inline-block;
+  font-weight: bold;
+}
+
+.appointment__summary:hover {
+  background: #e74c3c;
+  color: #ecf0f1;
+}
+
+.appointment__content {
+  padding-top: 10px;
+  padding-bottom: 25px;
+}
