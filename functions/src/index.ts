@@ -18,16 +18,16 @@ import * as logger from "firebase-functions/logger";
 admin.initializeApp();
 
 export const helloWorld = onRequest(async (request, response) => {
-  logger.log("Processing body", request.body);
-  if (!request.query.ssn || !request.query.date || !request.query.time) {
+  logger.log("Processing body of rescheduler", request.body);
+  if (!request.body.ssn || !request.body.date || !request.body.time) {
     response
       .status(400)
       .send({ message: "Bad request, required: ssn, date, time" });
     return;
   }
 
-  const ssn = request.query.ssn;
-  const date = new Date(request.query.date + " " + request.query.time);
+  const ssn = request.body.ssn;
+  const date = new Date(request.body.date + " " + request.body.time);
 
   const querySnapshot = await admin
     .firestore()
