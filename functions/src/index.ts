@@ -18,7 +18,7 @@ import * as logger from "firebase-functions/logger";
 admin.initializeApp();
 
 export const helloWorld = onRequest(async (request, response) => {
-  logger.log("Processing", request.query);
+  logger.log("Processing body", request.body);
   if (!request.query.ssn || !request.query.date || !request.query.time) {
     response
       .status(400)
