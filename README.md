@@ -13,7 +13,7 @@ But don't worry, all sensitive details are automated, you're just initializing t
 So open https://console.firebase.google.com/ and create a Project.
 No need to enable Analytics.
 
-First, enable the database, look for a "Cloud Firestore" section and create it.
+First, enable the database, look for a "Firestore Database" section and create it.
 Select the "test mode" while creating it for now.
 
 Now, for the credentials. Look for a button that sounds like "Add Firebase to your web app",
@@ -53,6 +53,11 @@ Just for clarifications, we'll need from this Cloud:
 - Firestore
 - Functions
 - Hosting
+
+This might require you to put billing data, but you should not be charged
+since there's no way a simple proof of concept could exceed the no-charge
+limit, it's huge. Just remember to delete everything after any
+so nobody can abuse its usage.
 
 TLDR, the commands are:
 
