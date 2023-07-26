@@ -64,7 +64,7 @@ TLDR, the commands are:
 ```sh
 npm install -g firebase-tools
 firebase login
-firebase deploy
+npm run deploy
 ```
 
 If you're maintaining a custom instance (made by someone else than the original repo author),
