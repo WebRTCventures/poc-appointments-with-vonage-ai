@@ -8,12 +8,73 @@
  */
 
 import { onRequest } from "firebase-functions/v2/https";
+import type { DocumentData } from "firebase-admin/firestore";
+import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
 
-export const helloWorld = onRequest((request, response) => {
-  logger.info("Hello logs!", { structuredData: true });
-  response.send("Hello from Firebase!");
+admin.initializeApp();
+
+export const helloWorld = onRequest(async (request, response) => {
+  if (!request.query.ssn || !request.query.date || !request.query.time) {
+    response
+      .status(400)
+      .send({ message: "Bad request, required: ssn, date, time" });
+    return;
+  }
+
+  const ssn = request.query.ssn;
+  const date = new Date(request.query.date + " " + request.query.time);
+
+  const querySnapshot = await admin
+    .firestore()
+    .collection("appointments")
+    .get();
+
+  const appointments: Appointment[] = [];
+
+  querySnapshot.forEach((doc: DocumentData) => {
+    const data = doc.data();
+    appointments.push({
+      uid: doc.id,
+      datetime: data.datetime.toDate(),
+      guardianName: data.guardianName,
+      guardianSsn: data.guardianSsn,
+      guardianEmail: data.guardianEmail,
+      guardianPhone: data.guardianPhone,
+      studentName: data.studentName,
+      studentGradeLevel: data.studentGradeLevel,
+    } as Appointment);
+  });
+
+  const appointment = appointments.find((a) => a.guardianSsn === ssn);
+  if (!appointment) {
+    response.status(404).send({ message: "No appointment found" });
+    return;
+  }
+
+  await admin.firestore().doc(`appointments/${appointment.uid}`).update({
+    datetime: date,
+  });
+
+  logger.log("Found appointment", appointment);
+  response.status(200).send({ message: "Appointment rescheduled" });
 });
+
+interface Appointment {
+  uid: string;
+  datetime: Date;
+  guardianName: string;
+  guardianSsn: string;
+  guardianEmail: string;
+  guardianPhone: string;
+  studentName: string;
+  studentGradeLevel: StudentGradeLevel;
+}
+
+interface StudentGradeLevel {
+  code: string;
+  description: string;
+}

@@ -37,9 +37,11 @@ export default function App() {
       </header>
       {!todayAppointments.length && (
         <p>
-          Waiting for appointments data. If this is taking too long, open the
-          browser inspector and call the global function:{" "}
-          <code>seedTodayAppointments()</code>
+          <small>
+            Waiting for appointments data... If this is taking too long, open
+            the browser inspector and call the global function:{" "}
+            <code>seedTodayAppointments()</code>
+          </small>
         </p>
       )}
       <ul className="appointments-list">
@@ -47,9 +49,10 @@ export default function App() {
           <li key={appointment.uid} className="appointments-list-item">
             <details className="appointment">
               <summary className="appointment__summary">
-                <span className="appointment__summary-week-day">
+                <span className="appointment__summary-time">
                   {appointment.datetime.toLocaleString("en-US", {
-                    weekday: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })}
                 </span>
                 <span className="appointment__summary-date">
@@ -63,7 +66,9 @@ export default function App() {
                 </span>
               </summary>
               <ul className="appointment__content">
+                <li>Datime: {appointment.datetime.toLocaleString("en-US")}</li>
                 <li>Guardian: {appointment.guardianName}</li>
+                <li>Security Social Number (SSN): {appointment.guardianSsn}</li>
                 <li>Email: {appointment.guardianEmail}</li>
                 <li>Phone: {appointment.guardianPhone}</li>
                 <li>Student: {appointment.studentName}</li>
@@ -83,6 +88,7 @@ interface Appointment {
   uid: string;
   datetime: Date;
   guardianName: string;
+  guardianSsn: string;
   guardianEmail: string;
   guardianPhone: string;
   studentName: string;
@@ -118,6 +124,7 @@ function listenAppointments(
           uid: doc.id,
           datetime: data.datetime.toDate(),
           guardianName: data.guardianName,
+          guardianSsn: data.guardianSsn,
           guardianEmail: data.guardianEmail,
           guardianPhone: data.guardianPhone,
           studentName: data.studentName,
@@ -145,6 +152,7 @@ function listenAppointments(
         0
       ),
       guardianName: "John Johnson",
+      guardianSsn: "123456789",
       guardianEmail: "john.doe@mail.com",
       guardianPhone: "+1-123-456-7890",
       studentName: "Carl",
@@ -160,6 +168,7 @@ function listenAppointments(
         0
       ),
       guardianName: "Jane Doe",
+      guardianSsn: "987654321",
       guardianEmail: "jane.doe@mail.com",
       guardianPhone: "+1-234-567-8901",
       studentName: "Ken",
@@ -175,6 +184,7 @@ function listenAppointments(
         0
       ),
       guardianName: "Tom Smith",
+      guardianSsn: "456789123",
       guardianEmail: "tom.smith@mail.com",
       guardianPhone: "+1-345-678-9012",
       studentName: "Barbie",
@@ -190,6 +200,7 @@ function listenAppointments(
         0
       ),
       guardianName: "Emily Johnson",
+      guardianSsn: "789123456",
       guardianEmail: "emily.johnson@mail.com",
       guardianPhone: "+1-456-789-0123",
       studentName: "Allan",

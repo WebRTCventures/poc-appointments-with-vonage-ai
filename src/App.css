@@ -51,7 +51,7 @@ body {
   border-radius: 8px;
 }
 
-.appointment__summary-week-day {
+.appointment__summary-time {
   display: inline-block;
   margin-right: 10px;
   font-weight: bold;
