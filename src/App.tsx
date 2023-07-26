@@ -18,17 +18,9 @@ export default function App() {
     []
   );
 
-  const today = new Date();
-  const todayAppointments = appointments
-    .filter(
-      (a) =>
-        a.datetime.getFullYear() === today.getFullYear() &&
-        a.datetime.getMonth() === today.getMonth() &&
-        a.datetime.getDay() === today.getDay()
-    )
-    .sort((left, right) =>
-      left.datetime.valueOf() > right.datetime.valueOf() ? 1 : -1
-    );
+  const todayAppointments = appointments.sort((left, right) =>
+    left.datetime.valueOf() > right.datetime.valueOf() ? 1 : -1
+  );
 
   return (
     <main className="main">
