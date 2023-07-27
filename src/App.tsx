@@ -18,7 +18,7 @@ export default function App() {
     []
   );
 
-  const todayAppointments = appointments.sort((left, right) =>
+  const sortedAppointments = appointments.sort((left, right) =>
     left.datetime.valueOf() > right.datetime.valueOf() ? 1 : -1
   );
 
@@ -27,7 +27,7 @@ export default function App() {
       <header className="main-header">
         <h1 className="main-header__title">School Appointments</h1>
       </header>
-      {!todayAppointments.length && (
+      {!sortedAppointments.length && (
         <p>
           <small>
             Waiting for appointments data... If this is taking too long, open
@@ -37,7 +37,7 @@ export default function App() {
         </p>
       )}
       <ul className="appointments-list">
-        {todayAppointments.map((appointment) => (
+        {sortedAppointments.map((appointment) => (
           <li key={appointment.uid} className="appointments-list-item">
             <details className="appointment">
               <summary className="appointment__summary">
