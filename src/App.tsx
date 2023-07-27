@@ -92,12 +92,14 @@ export default function App() {
                   {appointment.datetime.toLocaleString("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
+                    timeZone: "UTC",
                   })}
                 </span>
                 <span className="appointment__summary-date">
                   {appointment.datetime.toLocaleString("en-US", {
                     month: "short",
                     day: "2-digit",
+                    timeZone: "UTC",
                   })}
                 </span>
                 <span className="appointment__summary-names">
@@ -106,7 +108,12 @@ export default function App() {
               </summary>
               <ul className="appointment__content">
                 <li>Appointment UID: {appointment.uid}</li>
-                <li>Datime: {appointment.datetime.toLocaleString("en-US")}</li>
+                <li>
+                  Datime:{" "}
+                  {appointment.datetime.toLocaleString("en-US", {
+                    timeZone: "UTC",
+                  })}
+                </li>
                 <li>Guardian: {appointment.guardianName}</li>
                 <li>Security Social Number (SSN): {appointment.guardianSsn}</li>
                 <li>Email: {appointment.guardianEmail}</li>
