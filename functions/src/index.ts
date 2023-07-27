@@ -19,14 +19,18 @@ admin.initializeApp();
 
 export const helloWorld = onRequest(async (request, response) => {
   logger.log("Processing body of rescheduler", request.body);
-  if (!request.body.ssn || !request.body.date || !request.body.time) {
+  if (!request.body.phone || !request.body.date || !request.body.time) {
     response
       .status(400)
-      .send({ message: "Bad request, required: ssn, date, time" });
+      .send({ message: "Bad request, required: phone, date, time" });
     return;
   }
 
-  const ssn = request.body.ssn;
+  const phone = request.body.phone.replace(/\D/gm, "");
+  if (phone.length < 9) {
+    response.status(400).send({ message: "Bad request: phone digits" });
+  }
+
   const date = new Date(request.body.date + " " + request.body.time);
 
   const querySnapshot = await admin
@@ -50,7 +54,9 @@ export const helloWorld = onRequest(async (request, response) => {
     } as Appointment);
   });
 
-  const appointment = appointments.find((a) => a.guardianSsn === ssn);
+  const appointment = appointments.find((a) =>
+    a.guardianPhone.replace(/\D/gm, "").endsWith(phone)
+  );
   if (!appointment) {
     response.status(404).send({ message: "No appointment found" });
     return;
