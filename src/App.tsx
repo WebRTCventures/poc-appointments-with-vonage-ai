@@ -7,7 +7,7 @@ import {
   query,
 } from "firebase/firestore";
 import { firestoreDb } from "./services/firebaseApp";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function App() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -18,9 +18,50 @@ export default function App() {
     []
   );
 
-  const sortedAppointments = appointments.sort((left, right) =>
-    left.datetime.valueOf() > right.datetime.valueOf() ? 1 : -1
+  const sortedAppointments = useMemo(
+    () =>
+      appointments.sort((left, right) =>
+        left.datetime.valueOf() > right.datetime.valueOf() ? 1 : -1
+      ),
+    [appointments]
   );
+
+  const [recentlyChangeds, setRecentlyChangeds] = useState<string[]>([]);
+  const previousAppointmentsRef = useRef<Appointment[]>([]);
+  useEffect(() => {
+    let changedUids: string[] = [];
+    let shiftings = previousAppointmentsRef.current;
+    sortedAppointments.forEach((now, nowIndex) => {
+      const previousIndex = shiftings.findIndex(
+        (shifting) => shifting.uid === now.uid
+      );
+
+      const isPositionChange = previousIndex !== nowIndex;
+      const isOnlyDataChange =
+        !isPositionChange &&
+        JSON.stringify(shiftings[previousIndex]) !== JSON.stringify(now);
+      if (isPositionChange || isOnlyDataChange) {
+        changedUids = [...changedUids, now.uid];
+      }
+
+      shiftings = moveElement(shiftings, previousIndex, nowIndex);
+    });
+
+    setRecentlyChangeds((previouslyChangeds) => [
+      ...previouslyChangeds,
+      ...changedUids,
+    ]);
+
+    setTimeout(
+      () =>
+        setRecentlyChangeds((previouslyChangeds) =>
+          previouslyChangeds.filter((c) => !changedUids.includes(c))
+        ),
+      500
+    );
+
+    previousAppointmentsRef.current = sortedAppointments;
+  }, [sortedAppointments]);
 
   return (
     <main className="main">
@@ -40,7 +81,13 @@ export default function App() {
         {sortedAppointments.map((appointment) => (
           <li key={appointment.uid} className="appointments-list-item">
             <details className="appointment">
-              <summary className="appointment__summary">
+              <summary
+                className={`appointment__summary ${
+                  recentlyChangeds.includes(appointment.uid)
+                    ? "appointment__summary--updated"
+                    : ""
+                }`}
+              >
                 <span className="appointment__summary-time">
                   {appointment.datetime.toLocaleString("en-US", {
                     hour: "2-digit",
@@ -58,6 +105,7 @@ export default function App() {
                 </span>
               </summary>
               <ul className="appointment__content">
+                <li>Appointment UID: {appointment.uid}</li>
                 <li>Datime: {appointment.datetime.toLocaleString("en-US")}</li>
                 <li>Guardian: {appointment.guardianName}</li>
                 <li>Security Social Number (SSN): {appointment.guardianSsn}</li>
@@ -224,3 +272,24 @@ const STUDENTS_GRADE_OPTIONS: readonly StudentGradeLevel[] = Object.freeze([
   { code: "11", description: "Eleventh Grade" },
   { code: "12", description: "Twelfth Grade" },
 ]);
+
+function moveElement<T>(collection: T[], orig: number, dest: number): T[] {
+  if (!collection.length) {
+    return [];
+  }
+
+  const element = collection[orig];
+
+  if (dest < 0) {
+    return [element, ...collection];
+  }
+
+  if (dest >= collection.length) {
+    return [...collection, element];
+  }
+
+  const filtered = collection.filter((_v, i) => i !== orig);
+  const before = filtered.slice(0, dest);
+  const after = filtered.slice(dest, collection.length);
+  return [...before, element, ...after];
+}
