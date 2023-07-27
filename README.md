@@ -70,6 +70,37 @@ npm run deploy
 If you're maintaining a custom instance (made by someone else than the original repo author),
 you'll probably need to somehow override the project name used as target.
 
+After the deploy finishes, look in the output for the console link to manage
+these resources, but you'll be mostly interested in the other links for the
+hosted app and for the hosted function. You can open the hosted app in your browser
+while the serverless function will be used as web hook for the Vonage Agent.
+
+## Vonage AI Studio (the rescheduling)
+
+Create an Vonage AI Studio account for you and create an Agent which is how
+they call a programmed flow of conversation.
+
+When you be prompted to Import an Agent, use the file available here
+in this repository called "appointment-agent". Remember to update the
+hook step with the actual cloud function URL.
+
+In case you have to assemble something by yourself for any reason
+(like the importation not working), you must create one for yourself from
+scretch. Just pick any steps you want to feel the variables, but concerning this
+integration the web hook step is what that matters most. It must be a POST to
+the serverless function with the following format, a valid JSON:
+
+`{ "phone": "$PHONE", "date": "$DATE", "time": "$TIME" }`
+
+Assuming that the variables are the ones named with the `$` prefix, that should
+work. And they're typed in Vonage as `sys.phone_number`, `sys.date` and `sys.time`.
+For voice, you can add an assignment step saying that `PHONE = $CALLER_PHONE_NUMBER`,
+cause this later variable is injected by Vonage during a telephony call. This also
+means that, for the scope of this POC, you must go to the Firestore console and edit
+one of the guardian numbers to a real phone of yours, so the cloud function will
+identify you as such guardian for the rescheduling process. Remember to use your
+phone in the international format, with your country and area codes.
+
 ## Licensing
 
 This is proprietary software made by WebRTC.ventures & AgilityFeat and written by
