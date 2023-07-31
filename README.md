@@ -1,8 +1,23 @@
 # POC: Appointments with Vonage AI
 
-A proof of concept using Vonage AI for appointments.
+A proof of concept using Vonage AI for rescheduling appointments.
 
-## Firebase (BaaS)
+## Quick demonstration
+
+Demonstration in chat mode, it'll ask for a number and a new appointment
+date and time, and the screen on the right side will update in real time:
+
+![Chat demonstration](./gh-assets/demo-chat-mode.gif)
+
+In voice mode, it'll do the same, but it won't ask for the phone number,
+because it'll be already identified from the caller's telephony information.
+
+In both cases, notice how the inputs are somewhat flexible, allowing relative
+dates like "tomorrow", and only a few digits for the number.
+
+## Setting up
+
+### Firebase (BaaS)
 
 It relies on Firebase as backend even for local development,
 so we have a vendor lock-in, but that's fine for a quick POC.
@@ -24,7 +39,7 @@ mark "Also set up Firebase Hosting for this app."
 
 Stop when you see a config JSON, you'll need it for the next step.
 
-## Local setup (Node)
+### Local setup (Node)
 
 Using **Node 18**, just install dependencies:
 
@@ -46,7 +61,7 @@ And run the app:
 npm run dev
 ```
 
-## Deploying it (PaaS)
+### Deploying it (PaaS)
 
 Just for clarifications, we'll need from this Cloud:
 
@@ -75,19 +90,23 @@ these resources, but you'll be mostly interested in the other links for the
 hosted app and for the hosted function. You can open the hosted app in your browser
 while the serverless function will be used as web hook for the Vonage Agent.
 
-## Vonage AI Studio (the rescheduling)
+### Vonage AI Studio (the rescheduling)
 
-Create an Vonage AI Studio account for you and create an Agent which is how
-they call a programmed flow of conversation.
+Create an [Vonage AI Studio](https://studio.ai.vonage.com/) account for you
+and create an Agent which is how they call a programmed flow of conversation.
 
 When you be prompted to Import an Agent, use the file available here
-in this repository called "appointment-agent". Remember to update the
-hook step with the actual cloud function URL.
+in this repository called "appointment-agent" or something.
+Remember to **update the hook step with the actual cloud function URL**.
 
-In case you have to assemble something by yourself for any reason
-(like the importation not working), you must create one for yourself from
+It'll be something like this (you can open the image in another tab to easily zoom in):
+
+![Example of the Vonage AI Studio flow for this application](./gh-assets/agent-on-studio-exemple.png)
+
+In case you have to assemble **something by yourself** for any reason
+(like the importation not working), you must create one Agent from
 scretch. Just pick any steps you want to feel the variables, but concerning this
-integration the web hook step is what that matters most. It must be a POST to
+integration **the web hook step** is what that matters most. It must be a POST to
 the serverless function with the following format, a valid JSON:
 
 `{ "phone": "$PHONE", "date": "$DATE", "time": "$TIME" }`
