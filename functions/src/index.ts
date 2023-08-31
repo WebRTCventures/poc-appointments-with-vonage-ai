@@ -26,12 +26,32 @@ export const helloWorld = onRequest(async (request, response) => {
     return;
   }
 
+  // Example of bot input: +55 84 91111-1111
   const phone = request.body.phone.replace(/\D/gm, "");
   if (phone.length < 9) {
     response.status(400).send({ message: "Bad request: phone digits" });
   }
 
-  const date = new Date(request.body.date + " " + request.body.time);
+  // Examples of bot input:
+  // Date: 2023-09-01
+  // Time: 05:00:00
+  const date = new Date(request.body.date + " " + request.body.time + " +0");
+
+  // Example of bot output:
+  // We don't have availability for this given time. Alternatives are ...
+  if (date.getUTCHours() < OPENING_HOUR) {
+    response
+      .status(200)
+      .send({ alternativeTimesText: FIRST_HOURS_TEXTS.join(" or ") });
+    return;
+  }
+
+  if (date.getUTCHours() >= CLOSING_HOUR) {
+    response
+      .status(200)
+      .send({ alternativeTimesText: `before ${CLOSING_HOUR_TEXT}` });
+    return;
+  }
 
   const querySnapshot = await admin
     .firestore()
@@ -85,3 +105,9 @@ interface StudentGradeLevel {
   code: string;
   description: string;
 }
+
+const OPENING_HOUR = 9;
+const FIRST_HOURS_TEXTS = Object.freeze(["9 AM", "10 AM"]);
+
+const CLOSING_HOUR = 18;
+const CLOSING_HOUR_TEXT = "6 PM";
