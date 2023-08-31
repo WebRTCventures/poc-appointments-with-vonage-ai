@@ -44,7 +44,8 @@ Stop when you see a config JSON, you'll need it for the next step.
 Using **Node 18**, just install dependencies:
 
 ```sh
-npm i
+nvm use
+npm install
 ```
 
 Create a safe environment variables for you called `.env` using the `sample.env`:
