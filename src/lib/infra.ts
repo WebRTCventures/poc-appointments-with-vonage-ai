@@ -32,7 +32,6 @@ export function listenAppointments(
           uid: doc.id,
           datetime: data.datetime.toDate(),
           guardianName: data.guardianName,
-          guardianSsn: data.guardianSsn,
           guardianEmail: data.guardianEmail,
           guardianPhone: data.guardianPhone,
           studentName: data.studentName,

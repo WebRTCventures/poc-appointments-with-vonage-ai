@@ -15,7 +15,6 @@ export async function seedTodayAppointments() {
         0
       ),
       guardianName: "John Johnson",
-      guardianSsn: "123456789",
       guardianEmail: "john.doe@mail.com",
       guardianPhone: "+1 505-415-9991",
       studentName: "Carl",
@@ -31,7 +30,6 @@ export async function seedTodayAppointments() {
         0
       ),
       guardianName: "Jane Doe",
-      guardianSsn: "987654321",
       guardianEmail: "jane.doe@mail.com",
       guardianPhone: "+1 505-644-6070",
       studentName: "Ken",
@@ -47,7 +45,6 @@ export async function seedTodayAppointments() {
         0
       ),
       guardianName: "Tom Smith",
-      guardianSsn: "456789123",
       guardianEmail: "tom.smith@mail.com",
       guardianPhone: "+1 202-443-2300",
       studentName: "Barbie",
@@ -63,7 +60,6 @@ export async function seedTodayAppointments() {
         0
       ),
       guardianName: "Emily Johnson",
-      guardianSsn: "789123456",
       guardianEmail: "emily.johnson@mail.com",
       guardianPhone: "+1 203-974-0128",
       studentName: "Allan",

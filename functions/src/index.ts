@@ -75,7 +75,6 @@ export const helloWorld = onRequest(async (request, response) => {
       uid: doc.id,
       datetime: data.datetime.toDate(),
       guardianName: data.guardianName,
-      guardianSsn: data.guardianSsn,
       guardianEmail: data.guardianEmail,
       guardianPhone: data.guardianPhone,
       studentName: data.studentName,
@@ -103,7 +102,6 @@ interface Appointment {
   uid: string;
   datetime: Date;
   guardianName: string;
-  guardianSsn: string;
   guardianEmail: string;
   guardianPhone: string;
   studentName: string;

@@ -111,7 +111,6 @@ export default function App() {
                   })}
                 </li>
                 <li>Guardian: {appointment.guardianName}</li>
-                <li>Security Social Number (SSN): {appointment.guardianSsn}</li>
                 <li>Email: {appointment.guardianEmail}</li>
                 <li>Phone: {appointment.guardianPhone}</li>
                 <li>Student: {appointment.studentName}</li>
