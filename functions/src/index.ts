@@ -44,7 +44,7 @@ export const helloWorld = onRequest(async (request, response) => {
   // We don't have availability for this given time. Alternatives are ...
 
   // Check: within working hours
-  if (date.getUTCHours() < OPENING_HOUR || date.getUTCHours() >= CLOSING_HOUR) {
+  if (!isWithinWorkingHours(date)) {
     response.status(200).send({
       alternativeTimesText: `after ${OPENING_HOUR_TEXT} and before ${CLOSING_HOUR_TEXT}`,
     });
@@ -52,15 +52,15 @@ export const helloWorld = onRequest(async (request, response) => {
   }
 
   // Check: within time slots
-  if (date.getUTCMinutes() % MEETING_DURATION_IN_MINUTES !== 0) {
-    const options = getOptionsAtSuchHour(date);
+  if (!isValidTimeSlot(date)) {
+    const options = getTimeSlots(date);
     response
       .status(200)
       .send({ alternativeTimesText: getReadableTimesText(options) });
     return;
   }
 
-  // TODO: Check: free slot
+  // Query appointments
 
   const querySnapshot = await admin
     .firestore()
@@ -68,7 +68,6 @@ export const helloWorld = onRequest(async (request, response) => {
     .get();
 
   const appointments: Appointment[] = [];
-
   querySnapshot.forEach((doc: DocumentData) => {
     const data = doc.data();
     appointments.push({
@@ -89,6 +88,71 @@ export const helloWorld = onRequest(async (request, response) => {
     response.status(404).send({ message: "No appointment found" });
     return;
   }
+
+  // Check: non-conflicting slot
+
+  const occupiedSlots: Date[] = appointments.map((appointment) => {
+    appointment.datetime.setUTCMilliseconds(0);
+    return appointment.datetime;
+  });
+  const isSomeOccupiedSlot = occupiedSlots.some(
+    (s) => s.valueOf() === date.valueOf()
+  );
+  if (isSomeOccupiedSlot) {
+    const occupiedSlotsValues: number[] = occupiedSlots.map((s) => s.valueOf());
+
+    const allHourPotentialOptions = getTimeSlots(date);
+
+    const previousHour = new Date(date);
+    previousHour.setUTCHours(date.getUTCHours() - 1);
+    const allPreviousHourPotentialOptions = getTimeSlots(previousHour);
+
+    const nextHour = new Date(date);
+    nextHour.setUTCHours(date.getUTCHours() + 1);
+    const allNextHourPotentialOptions = getTimeSlots(nextHour);
+
+    const allBestPotentialOptions = [
+      ...allHourPotentialOptions,
+      ...allPreviousHourPotentialOptions,
+      ...allNextHourPotentialOptions,
+    ];
+    const allBestOptions = allBestPotentialOptions.filter(
+      (o) => !occupiedSlotsValues.includes(o.valueOf())
+    );
+    if (allBestOptions.length) {
+      const bestOptions = allBestOptions.slice(0, 3);
+      response
+        .status(200)
+        .send({ alternativeTimesText: getReadableTimesText(bestOptions) });
+      return;
+    }
+
+    const allDayOptions: Date[] = new Array(CLOSING_HOUR - OPENING_HOUR)
+      .fill(null)
+      .reduce((acc, _, index) => {
+        const atPotentialHour = new Date(date);
+        atPotentialHour.setUTCHours(OPENING_HOUR * index);
+        const potentialOptions = getTimeSlots(atPotentialHour);
+        const freeOptions = potentialOptions.filter(
+          (o) => !occupiedSlotsValues.includes(o.valueOf())
+        );
+        return [...acc, ...freeOptions];
+      }, []);
+    const dayOptions = allDayOptions.slice(0, 3);
+    if (dayOptions.length) {
+      response
+        .status(200)
+        .send({ alternativeTimesText: getReadableTimesText(dayOptions) });
+      return;
+    }
+
+    response
+      .status(200)
+      .send({ alternativeTimesText: "none for the given day" });
+    return;
+  }
+
+  // Persist the new appointment
 
   await admin.firestore().doc(`appointments/${appointment.uid}`).update({
     datetime: date,
@@ -113,23 +177,33 @@ interface StudentGradeLevel {
   description: string;
 }
 
-const OPENING_HOUR = 9;
-const OPENING_HOUR_TEXT = "9 AM";
-
-const CLOSING_HOUR = 18;
-const CLOSING_HOUR_TEXT = "6 PM";
-
 const makeDatetime = ({ date, time }: { date: string; time: string }): Date => {
   const dateInstance = new Date(date + " " + time + " +0");
   dateInstance.setUTCMilliseconds(0);
   return dateInstance;
 };
 
+const OPENING_HOUR = 9;
+const OPENING_HOUR_TEXT = "9 AM";
+
+const CLOSING_HOUR = 18;
+const CLOSING_HOUR_TEXT = "6 PM";
+
+const isWithinWorkingHours = (d: Date): boolean =>
+  d.getUTCHours() >= OPENING_HOUR && d.getUTCHours() < CLOSING_HOUR;
+
+const isValidTimeSlot = (d: Date): boolean =>
+  d.getUTCMinutes() % MEETING_DURATION_IN_MINUTES === 0;
+
 const APPOINTMENTS_PER_HOUR = 4;
 
 const MEETING_DURATION_IN_MINUTES = 60 / APPOINTMENTS_PER_HOUR;
 
-const getOptionsAtSuchHour = (date: Date): Date[] => {
+const getTimeSlots = (date: Date): Date[] => {
+  if (!isWithinWorkingHours(date)) {
+    return [];
+  }
+
   const dateRoundedAt00 = new Date(date);
   dateRoundedAt00.setUTCMinutes(0);
   const options = new Array(APPOINTMENTS_PER_HOUR)
