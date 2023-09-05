@@ -204,8 +204,6 @@ const getTimeSlots = (date: Date): Date[] => {
     return [];
   }
 
-  const dateRoundedAt00 = new Date(date);
-  dateRoundedAt00.setUTCMinutes(0);
   const options = new Array(APPOINTMENTS_PER_HOUR)
     .fill(null)
     .map((_, index) => {
