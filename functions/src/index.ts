@@ -35,23 +35,32 @@ export const helloWorld = onRequest(async (request, response) => {
   // Examples of bot input:
   // Date: 2023-09-01
   // Time: 05:00:00
-  const date = new Date(request.body.date + " " + request.body.time + " +0");
+  const date = makeDatetime({
+    date: request.body.date,
+    time: request.body.time,
+  });
 
   // Example of bot output:
   // We don't have availability for this given time. Alternatives are ...
-  if (date.getUTCHours() < OPENING_HOUR) {
-    response
-      .status(200)
-      .send({ alternativeTimesText: FIRST_HOURS_TEXTS.join(" or ") });
+
+  // Check: within working hours
+  if (date.getUTCHours() < OPENING_HOUR || date.getUTCHours() >= CLOSING_HOUR) {
+    response.status(200).send({
+      alternativeTimesText: `after ${OPENING_HOUR_TEXT} and before ${CLOSING_HOUR_TEXT}`,
+    });
     return;
   }
 
-  if (date.getUTCHours() >= CLOSING_HOUR) {
+  // Check: within time slots
+  if (date.getUTCMinutes() % MEETING_DURATION_IN_MINUTES !== 0) {
+    const options = getOptionsAtSuchHour(date);
     response
       .status(200)
-      .send({ alternativeTimesText: `before ${CLOSING_HOUR_TEXT}` });
+      .send({ alternativeTimesText: getReadableTimesText(options) });
     return;
   }
+
+  // TODO: Check: free slot
 
   const querySnapshot = await admin
     .firestore()
@@ -107,7 +116,47 @@ interface StudentGradeLevel {
 }
 
 const OPENING_HOUR = 9;
-const FIRST_HOURS_TEXTS = Object.freeze(["9 AM", "10 AM"]);
+const OPENING_HOUR_TEXT = "9 AM";
 
 const CLOSING_HOUR = 18;
 const CLOSING_HOUR_TEXT = "6 PM";
+
+const makeDatetime = ({ date, time }: { date: string; time: string }): Date => {
+  const dateInstance = new Date(date + " " + time + " +0");
+  dateInstance.setUTCMilliseconds(0);
+  return dateInstance;
+};
+
+const APPOINTMENTS_PER_HOUR = 4;
+
+const MEETING_DURATION_IN_MINUTES = 60 / APPOINTMENTS_PER_HOUR;
+
+const getOptionsAtSuchHour = (date: Date): Date[] => {
+  const dateRoundedAt00 = new Date(date);
+  dateRoundedAt00.setUTCMinutes(0);
+  const options = new Array(APPOINTMENTS_PER_HOUR)
+    .fill(null)
+    .map((_, index) => {
+      const option = new Date(date);
+      option.setUTCMinutes(MEETING_DURATION_IN_MINUTES * index);
+      return option;
+    });
+  return options;
+};
+
+const getReadableTime = (d: Date): string =>
+  d.toLocaleString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+
+const getReadableTimes = (ds: Date[]): string[] =>
+  ds.map((d) => getReadableTime(d));
+
+const getReadableTimesText = (datetimes: Date[]): string => {
+  const texts = getReadableTimes(datetimes);
+  const firsts = texts.slice(0, texts.length - 1);
+  const last = texts.at(texts.length - 1);
+  return firsts.join(", ") + " or " + last;
+};
